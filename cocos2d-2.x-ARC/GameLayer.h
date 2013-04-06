@@ -51,6 +51,7 @@ enum
 
 #pragma mark - Gameplay methods
 
+
 -(void)moveTetrisAllDown;
 -(BOOL)moveDownTetris;
 -(void)moveTetris:(EnumMoveDirections)move;
