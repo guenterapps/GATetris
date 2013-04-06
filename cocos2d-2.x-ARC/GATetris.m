@@ -8,7 +8,6 @@
 
 #import "GATetris.h"
 #import "GATile.h"
-#import "GameDirector.h"
 #import "GAMatrix.h"
 #import "GameLayer.h"
 

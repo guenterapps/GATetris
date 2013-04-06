@@ -7,7 +7,6 @@
 //
 
 #import "GameLayer.h"
-#import "GameDirector.h"
 #import "GATetris.h"
 #import "GATetrisFactory.h"
 #import "GARow.h"

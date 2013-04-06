@@ -15,7 +15,7 @@
 		AA43B89917077B0E000E1DEF /* GAControlLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = AA43B89817077B0E000E1DEF /* GAControlLayer.m */; };
 		AA4E16FE16D922B8006F79AC /* tiles.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA4E16FC16D922B8006F79AC /* tiles.plist */; };
 		AA4E16FF16D922B8006F79AC /* tiles.png in Resources */ = {isa = PBXBuildFile; fileRef = AA4E16FD16D922B8006F79AC /* tiles.png */; };
-		AA5FA8871710829500C8B7ED /* GameDirector.m in Sources */ = {isa = PBXBuildFile; fileRef = AA5FA8861710829500C8B7ED /* GameDirector.m */; };
+		AA5FA8891710832100C8B7ED /* GameLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = AA5FA8881710832000C8B7ED /* GameLayer.m */; };
 		DC1B6EEB1528DA1B0065426D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1B6EEA1528DA1B0065426D /* QuartzCore.framework */; };
 		DC1B6EED1528DA1B0065426D /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1B6EEC1528DA1B0065426D /* OpenGLES.framework */; };
 		DC1B6EEF1528DA1B0065426D /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1B6EEE1528DA1B0065426D /* OpenAL.framework */; };
@@ -284,7 +284,7 @@
 		AA43B89817077B0E000E1DEF /* GAControlLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GAControlLayer.m; sourceTree = "<group>"; };
 		AA4E16FC16D922B8006F79AC /* tiles.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = tiles.plist; path = Assets/tiles.plist; sourceTree = SOURCE_ROOT; };
 		AA4E16FD16D922B8006F79AC /* tiles.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = tiles.png; path = Assets/tiles.png; sourceTree = SOURCE_ROOT; };
-		AA5FA8861710829500C8B7ED /* GameDirector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameDirector.m; sourceTree = "<group>"; };
+		AA5FA8881710832000C8B7ED /* GameLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameLayer.m; sourceTree = "<group>"; };
 		AA67496F16E5506600C467EA /* RoadMap */ = {isa = PBXFileReference; lastKnownFileType = text; path = RoadMap; sourceTree = "<group>"; };
 		DC1B6EE61528DA1B0065426D /* GATetris.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GATetris.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC1B6EEA1528DA1B0065426D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -631,7 +631,7 @@
 				AA1EE37E16C695370005B1DA /* GATetris.m */,
 				AA1EE37B16C694130005B1DA /* GATetrisFactory.m */,
 				AA1EE37816C692A30005B1DA /* GATile.m */,
-				AA5FA8861710829500C8B7ED /* GameDirector.m */,
+				AA5FA8881710832000C8B7ED /* GameLayer.m */,
 			);
 			name = GATetris;
 			path = "cocos2d-2.x-ARC";
@@ -1236,7 +1236,7 @@
 				AA1EE38216C697050005B1DA /* GAMatrix.m in Sources */,
 				AA1EE38516C697570005B1DA /* GARow.m in Sources */,
 				AA43B89917077B0E000E1DEF /* GAControlLayer.m in Sources */,
-				AA5FA8871710829500C8B7ED /* GameDirector.m in Sources */,
+				AA5FA8891710832100C8B7ED /* GameLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
