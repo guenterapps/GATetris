@@ -401,69 +401,6 @@ static GameLayer *sharedGamelayer = nil;
 }
 
 
-- (void)tempDebug
-{
-	NSMutableArray *rows =  tileMatrix.rows;
-	
-	for (int i = 0; i < 7; i++)
-	{
-		GARow *row = (GARow *)rows[i];
-		
-		row.isEmpty = NO;
-		
-		for (int j = 0; j < TILE_COL - 2; j++)
-		{
-			GATile	*tile = [tetrisFactory getFreeTile];
-			[tile moveTo:ccpMult(CGPointMake(j, i), TILE_SIZE)] ;
-			
-			[row.columns replaceObjectAtIndex:j withObject:tile];
-			
-		}
-		
-		
-	}
-	
-	
-	for (int j = 10; j < 13; j++)
-	{
-		GARow *row = (GARow *)[tileMatrix.rows objectAtIndex:j];
-		row.isEmpty = NO;
-		for (int i = 0; i < TILE_COL; i++)
-		{
-			if (j == 12 && (i >= 4 && i <= 6))
-				continue;
-			
-			GATile	*tile = [tetrisFactory getFreeTile];
-			[tile moveTo:ccpMult(CGPointMake(i, j), TILE_SIZE)] ;
-			
-			[row.columns replaceObjectAtIndex:i withObject:tile];
-		}
-		
-	}
-	
-	for (int i = 1; i < kEnumTetrisType_MAX; i++)
-	{
-		GATetris *tetris = [tetrisFactory tetrisOfType:i];
-		[tetris moveTo:CGPointMake(20 * i - 20, 60 * i - 60)];
-		
-		//[background addChild:tetris];
-		
-		
-		tetris.rotation = 0;
-		
-		CGPoint a1 = tetris.position;
-		
-		
-		CCLOG(@"%f %f", [tetris convertToNodeSpaceAR:a1].x, [tetris convertToNodeSpaceAR:a1].y);
-		
-		CCRotateBy *rotate = [CCRotateBy actionWithDuration:10 angle:360];
-		CCRepeatForever *repeat = [CCRepeatForever actionWithAction:rotate];
-		[tetris runAction:repeat];
-		[background addChild:tetris z:1 tag:100];
-		
-	}
-}
-
 @end
 
 
