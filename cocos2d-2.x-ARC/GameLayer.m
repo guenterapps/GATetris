@@ -16,7 +16,7 @@ static GameLayer *sharedGamelayer = nil;
 
 @implementation GameLayer
 
-@synthesize texture, tileMatrix, tetris = currentTetris;
+@synthesize texture, tileMatrix, tetris = currentTetris, level = _level, deletedRows = _deletedRows;
 
 #pragma mark - Init & Factory methods
 
@@ -26,7 +26,6 @@ static GameLayer *sharedGamelayer = nil;
 	
 	GameLayer *gamelayer = [GameLayer node];
 	GAControlLayer *controlLayer = [GAControlLayer node];
-	
 	
 	[scene addChild:gamelayer];
 	[scene addChild:controlLayer];
@@ -47,43 +46,94 @@ static GameLayer *sharedGamelayer = nil;
 	{
 		NSAssert(sharedGamelayer == nil, @"Already existing shared game layer");
 		
-		sharedGamelayer = self;		
-		
-		CGSize screenSize = [CCDirector sharedDirector].winSize;
-		
-		CCSpriteFrameCache *spriteCache = [CCSpriteFrameCache sharedSpriteFrameCache];
-		CCTextureCache *cache = [CCTextureCache sharedTextureCache];
+		CGSize screenSize					= [CCDirector sharedDirector].winSize;
+
+		CCSpriteFrameCache *spriteCache		= [CCSpriteFrameCache sharedSpriteFrameCache];
+		CCTextureCache *cache				= [CCTextureCache sharedTextureCache];
 		
 		[spriteCache addSpriteFramesWithFile:@"tiles.plist"];
 		
-		texture = [cache addImage:@"tiles.png"];
+		/*
+		 * Basic Layer initialization
+		 *******************************************************************************************/
+		sharedGamelayer = self;
 		
-		background = [CCSprite spriteWithSpriteFrameName:@"PNG/background.png"];
+		skipInputs		= NO;
+		_level			= 1;
+		_deletedRows	= 0;
 		
-		background.anchorPoint = CGPointMake(0, 0);
-
-		float xBackground = (screenSize.width - background.contentSize.width) / 2.0;
-		float yBackground = (screenSize.height - background.contentSize.height) / 2.0;
-		
-		background.position = CGPointMake(xBackground, yBackground);
-		background.color	= ccYELLOW;
-		background.opacity	= 100;
-		
+		texture			= [cache addImage:@"tiles.png"];
 		tileMatrix		= [GAMatrix tileMatrix];
 		currentTetris	= nil;
 		tetrisFactory	= [GATetrisFactory node];
 		
+		
 		self.isTouchEnabled = NO;
+		/*******************************************************************************************/
+
+		
+
+		/*
+		 * BackGround SubLayer
+		 *******************************************************************************************/
+		background = [CCSprite spriteWithSpriteFrameName:@"PNG/background.png"];
+		
+		background.anchorPoint = CGPointMake(0, 0);
+
+		float xBackground = 0;
+		float yBackground = (screenSize.height - background.contentSize.height);
+		
+		background.position = CGPointMake(xBackground, yBackground);
+		background.color	= ccYELLOW;
+		background.opacity	= 100;
+
 		
 		[self addChild:background z:0 tag:kNodeTagBackground];
 		
 		[background addChild:tetrisFactory z:0 tag:kNodeTagTetrisFactory];
-	
+		/*******************************************************************************************/
 		
+		/*
+		 *  Label fonts
+		 *******************************************************************************************/
+		
+		float avaibleHeight = background.position.y / 2;
+		
+		
+		CCLabelTTF *level = [CCLabelTTF node];
+		
+		[level setColor:ccWHITE];
+		[level setFontName:@"Marker Felt"];
+		[level setFontSize:32];
+		
+		level.anchorPoint = CGPointMake(0, 0.5);
+		
+		level.position = CGPointMake(TILE_SIZE, avaibleHeight);
+		
+		[self addChild:level z:0 tag:kNodeTagLevelLabel];
+		
+		CCLabelTTF *deletedRows = [CCLabelTTF node];
+		
+		[deletedRows setColor:ccWHITE];
+		[deletedRows setFontName:@"Marker Felt"];
+		[deletedRows setFontSize:32];
+		
+		deletedRows.anchorPoint = CGPointMake(1, 0.5);
+		
+		deletedRows.position = CGPointMake(screenSize.width - TILE_SIZE, avaibleHeight);
+		
+		[self addChild:deletedRows z:0 tag:kNodeTagDeletedLabel];
+		
+		[self updateLabels];
+		
+		/*******************************************************************************************/
+		
+		/*
+		 * Game starts!
+		 *******************************************************************************************/
 		[self dropTetris];
-		
-		[self schedule:@selector(moveDownTetris) interval:2];
-		
+		[self schedule:@selector(moveDownTetris) interval: 2 / self.level];
+		/*******************************************************************************************/
 	}
 	
 	return self;
@@ -98,6 +148,17 @@ static GameLayer *sharedGamelayer = nil;
 
 #pragma mark - Utility methods
 
+-(void)updateLabels
+{
+	CCLabelTTF *level = (CCLabelTTF *)[self getChildByTag:kNodeTagLevelLabel];
+	
+	[level setString:[NSString stringWithFormat:@"Level %d", self.level]];
+	
+	CCLabelTTF *rows = (CCLabelTTF *)[self getChildByTag:kNodeTagDeletedLabel];
+	
+	[rows setString:[NSString stringWithFormat:@"Rows %d", self.deletedRows]];
+}
+
 -(CGPoint)tetrisPositionInWorld
 {
 	return [[self getChildByTag:kNodeTagBackground] convertToWorldSpaceAR:currentTetris.position];
@@ -111,7 +172,7 @@ static GameLayer *sharedGamelayer = nil;
 	{
 		CGPoint matrixPosition  = [shadow convertToWorldSpaceAR:tile.position];
 				
-		if (matrixPosition.x < 0 || matrixPosition.y < 0)
+		if (matrixPosition.x < 0 || matrixPosition.x >= (TILE_COL * TILE_SIZE) || matrixPosition.y < 0)
 		{
 			canMove = NO;
 			break;
@@ -150,8 +211,25 @@ static GameLayer *sharedGamelayer = nil;
 
 #pragma mark - Gameplay methods
 
+-(void)updateGame
+{
+	_deletedRows++;
+	
+	if (!(self.deletedRows % ROWS_PER_LEVEL))
+	{
+		_level++;
+		
+		[self schedule:@selector(moveDownTetris) interval:2 / self.level];
+	}
+	
+	[self updateLabels];
+}
+
 -(void)moveTetris:(EnumMoveDirections)move
 {
+	if (skipInputs)
+		return;
+	
 	CCNode *shadow = [currentTetris askedToMoveTo:move];
 	
 	if ([self legalMove:shadow])
@@ -163,6 +241,9 @@ static GameLayer *sharedGamelayer = nil;
 
 -(void)rotateTetris:(EnumRotateDirections)rotate
 {
+	if (skipInputs)
+		return;
+	
 	CCNode *shadow = [currentTetris askedToRotate:rotate];
 	
 	if ([self legalMove:shadow])
@@ -176,6 +257,7 @@ static GameLayer *sharedGamelayer = nil;
 {
 	
 	currentTetris = [tetrisFactory randomTetris];
+	
 	[currentTetris moveTo:ccp(100, 300)];
 	
 	[background addChild:currentTetris];
@@ -184,13 +266,16 @@ static GameLayer *sharedGamelayer = nil;
 
 -(void)moveTetrisAllDown
 {
+	skipInputs = YES;
+	
 	if([self moveDownTetris])
 	{
-		[self schedule:_cmd interval:0.1];
+		[self schedule:_cmd interval: DROP_RATE / self.level];
 	}
 	else
 	{
 		[self unschedule:_cmd];
+		skipInputs = NO;
 	}
 }
 
@@ -208,13 +293,35 @@ static GameLayer *sharedGamelayer = nil;
 		[currentTetris moveToDirection:kMoveDirectionDown];
 	else
 	{
+		/*
+		 Tetris is destroyed and tiles are given back to the TetrisFactory.
+		 Rows occupied by the tetris are returned for next checks.
+		*/
 		rowsToProcess = [self killCurrentTetris];
 		
+		/*
+		 Rows checked as full are marked for deletion.
+		*/
 		[self checkRowsForDeletion:&rowsToProcess];
+		
+		/*
+		The rows marked for deletion are deleted from the game Matrix (tiles are substituted with NSNull objects).
+		*/
 		[self deleteRows:rowsToProcess];
+		
+		/*
+		Not-empty rows above deleted ones are shifted down to the lowest legal position.
+		*/
 		[self shiftDownMatrixRows:&rowsToProcess];
+		
+		/*
+		For shifted rows, tiles' position is updated.
+		*/
 		[self collapseDownTilesInRows:rowsToProcess];
 		
+		/*
+		The game loop restart.
+		*/
 		[self dropTetris];
 
 	}
@@ -393,6 +500,8 @@ static GameLayer *sharedGamelayer = nil;
 		}
 		
 		row.isEmpty = YES;
+		
+		[self updateGame];
 	}
 	
 	//add particle emitter here!!

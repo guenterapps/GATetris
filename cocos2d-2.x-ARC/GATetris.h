@@ -50,13 +50,10 @@ typedef enum
 	
 } EnumRotateDirections;
 
-
-
 @interface GATetris : CCNode
 
-
-@property (readwrite, nonatomic, assign) EnumTetrisType tetrisType;
-@property (readonly, nonatomic) CCNode *tetrisShadow;
+@property (nonatomic, readwrite) EnumTetrisType tetrisType;
+@property (nonatomic, readonly) CCNode *tetrisShadow;
 
 
 +(GATetris *)tetrisOfType:(EnumTetrisType)tetrisType withTiles:(NSSet *)tiles;

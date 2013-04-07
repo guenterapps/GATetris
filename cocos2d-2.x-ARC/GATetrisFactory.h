@@ -11,17 +11,13 @@
 #import "GATetris.h"
 #import "GATile.h"
 
-
-
 @class GAMatrix;
 
 @interface GATetrisFactory : CCNode
 {
-
     CCSpriteBatchNode *batchNode;
 	GAMatrix *matrix;
-	NSMutableSet *freeTiles;
-	
+	NSMutableSet *freeTiles;	
 }
 
 -(GATetris *)randomTetris;

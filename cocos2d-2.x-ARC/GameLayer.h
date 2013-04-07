@@ -13,6 +13,8 @@
 #define X_ANCHOR_POINT 0.5
 #define Y_ANCHOR_POINT 0.5
 #define OFFSET CGPointMake(X_ANCHOR_POINT, Y_ANCHOR_POINT)
+#define DROP_RATE 0.1
+#define ROWS_PER_LEVEL 10
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
@@ -25,7 +27,9 @@ enum
 
 	kNodeTagBackground,
 	kNodeTagTetrisFactory,
-	kNodeTagTetris
+	kNodeTagTetris,
+	kNodeTagLevelLabel,
+	kNodeTagDeletedLabel
 	
 };
 
@@ -38,11 +42,16 @@ enum
 	CCTexture2D			*texture;
 	CCSprite			*background;
 	CCSpriteBatchNode	*batchNode;
+	BOOL				skipInputs;
+	NSUInteger			_level;
+	NSUInteger			_deletedRows;
 }
 
 @property (nonatomic, readonly) CCTexture2D *texture;
 @property (nonatomic, readonly) GAMatrix *tileMatrix;
 @property (nonatomic, readonly) GATetris *tetris;
+@property (nonatomic) NSUInteger level;
+@property (nonatomic) NSUInteger deletedRows;
 
 #pragma mark - Init & Factory methods
 
@@ -64,6 +73,8 @@ enum
 -(NSMutableArray *)killCurrentTetris;
 -(void)checkRowsForDeletion:(NSMutableArray **)rowSet;
 -(void)deleteRows:(NSMutableArray *)rowSet;
+
+-(void)updateGame;
 
 #pragma mark - Utility methods
 
