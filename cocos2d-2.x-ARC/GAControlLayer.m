@@ -23,6 +23,7 @@
 		winsize = [CCDirector sharedDirector].winSize;
 		
 		isSwipe = NO;
+		ignoreSwipe = NO;
 		
 	}
 	
@@ -32,7 +33,8 @@
 -(void)ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
 	isSwipe = NO;
-	
+	ignoreSwipe = NO;
+
 	UITouch *touch = [touches anyObject];
 
 	firstTouch = [[CCDirector sharedDirector] convertToGL:[touch locationInView:touch.view]];
@@ -43,7 +45,7 @@
 {
 	float treshold = 2 * TILE_SIZE;
 	
-	if (!isSwipe)
+	if (!isSwipe && !ignoreSwipe)
 	{
 		UITouch *touch = [touches anyObject];
 		CGPoint touchPos = [[CCDirector sharedDirector] convertToGL:[touch locationInView:touch.view]];
@@ -53,16 +55,19 @@
 		if (movingTouch.y < -treshold && abs(movingTouch.x) < TILE_SIZE)
 		{
 			isSwipe = YES;
+			ignoreSwipe = YES;
 			[[GameLayer sharedGamelayer] moveTetrisAllDown];
 		}
 		else if (movingTouch.x < - treshold && abs(movingTouch.y) < TILE_SIZE)
 		{
 			isSwipe = YES;
+			ignoreSwipe = YES;
 			[[GameLayer sharedGamelayer] rotateTetris:kRotateDirectionLeft];
 		}
 		else if (movingTouch.x > treshold && abs(movingTouch.y) < TILE_SIZE)
 		{
 			isSwipe = YES;
+			ignoreSwipe = YES;
 			[[GameLayer sharedGamelayer] rotateTetris:kRotateDirectionRight];
 		}
 	

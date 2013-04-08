@@ -255,12 +255,23 @@ static GameLayer *sharedGamelayer = nil;
 
 -(void)dropTetris
 {
+
+	float yCoord = background.contentSize.height - TILE_SIZE;
+	float xCoord = 0;
+	CGPoint tetrisPosition = CGPointMake(xCoord, yCoord);
 	
 	currentTetris = [tetrisFactory randomTetris];
 	
-	[currentTetris moveTo:ccp(100, 300)];
-	
 	[background addChild:currentTetris];
+	
+	do
+	{
+		xCoord = (abs(rand()) % TILE_COL) * TILE_SIZE;
+		tetrisPosition = CGPointMake(xCoord, yCoord);
+		
+		[currentTetris moveTo:tetrisPosition];
+		
+	} while (![self legalMove:currentTetris]);
 	
 }
 

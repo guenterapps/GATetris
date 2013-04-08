@@ -12,6 +12,7 @@
 @interface GAControlLayer : CCLayer
 {
 	BOOL isSwipe;
+	BOOL ignoreSwipe;
 	CGPoint firstTouch;
 	CGSize winsize;
 }

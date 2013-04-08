@@ -20,9 +20,18 @@ typedef enum
 
 static CGPoint *moveDirectionOffsets = NULL;
 
+@interface GATetris (PrivateMethods)
+
+-(id)initWithTetrisOfType:(EnumTetrisType)type withTiles:(NSMutableSet *)tiles;
+-(void)resetShadow;
+
+@end
+
 @implementation GATetris;
 
-@synthesize tetrisType, tetrisShadow;
+@synthesize tetrisType, tetrisShadow = _tetrisShadow;
+
+#pragma mark - Tetris creation
 
 +(GATetris *)tetrisOfType:(EnumTetrisType)tetrisType withTiles:(NSSet *)tiles
 {
@@ -38,12 +47,12 @@ static CGPoint *moveDirectionOffsets = NULL;
 												 reason:[NSString stringWithFormat:@"%@: %d", @"Invalid Tetris type", tetrisType]
 											   userInfo:nil];
 		
-		tetrisShadow = [CCNode node];
+		_tetrisShadow = [CCNode node];
 		
 		self.tetrisType				= type;
 		
 		self.anchorPoint			= CGPointZero;
-		tetrisShadow.anchorPoint	= CGPointZero;
+		self.tetrisShadow.anchorPoint	= CGPointZero;
 		
 		if (moveDirectionOffsets == NULL)
 		{
@@ -138,7 +147,7 @@ static CGPoint *moveDirectionOffsets = NULL;
 			
 			[tiles removeObject:tile];
 			
-			[tetrisShadow addChild:shadowTile];
+			[self.tetrisShadow addChild:shadowTile];
 			
 		}
 	}
@@ -146,8 +155,12 @@ static CGPoint *moveDirectionOffsets = NULL;
 	return self;
 }
 
+#pragma mark - Move & Rotation methods
+
 -(CCNode *)askedToMoveTo:(EnumMoveDirections)moveDirection
 {
+	[self resetShadow];
+	
 	[self applyTransformation:kEnumTransTypeMov
 					   toNode:self.tetrisShadow
 					withValue:[NSNumber numberWithInt:moveDirection]];
@@ -157,6 +170,8 @@ static CGPoint *moveDirectionOffsets = NULL;
 
 -(CCNode *)askedToRotate:(EnumRotateDirections)rotateDirection
 {
+	[self resetShadow];
+	
 	[self applyTransformation:kEnumTransTypeRot
 					   toNode:self.tetrisShadow
 					withValue:[NSNumber numberWithInt:rotateDirection]];
@@ -222,23 +237,32 @@ static CGPoint *moveDirectionOffsets = NULL;
 	}
 }
 
+
+#pragma mark - Utility methods
+
 -(void)setPosition:(CGPoint)position
 {
 	[super setPosition:position];
 	
-	[tetrisShadow setPosition:position];
+	[self.tetrisShadow setPosition:position];
 }
 
 -(void)setRotation:(float)rotation
 {
 	[super setRotation:rotation];
 	
-	[tetrisShadow setRotation:rotation];
+	[self.tetrisShadow setRotation:rotation];
 }
 
 -(void)moveTo:(CGPoint)position
 {
 	self.position = ccpAdd(position, ccpMult(OFFSET, TILE_SIZE));
+}
+
+-(void)resetShadow
+{
+	self.tetrisShadow.position = self.position;
+	self.tetrisShadow.rotation = self.rotation;
 }
 
 

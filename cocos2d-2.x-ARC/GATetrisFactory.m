@@ -43,7 +43,7 @@
 
 -(GATetris *)randomTetris
 {
-	EnumTetrisType type = MIN((1 + CCRANDOM_0_1() * kEnumTetrisType_MAX), kEnumTetrisType_MAX - 1);
+	EnumTetrisType type = 1 + abs(rand()) % (kEnumTetrisType_MAX - 1);
 	
 	return [self tetrisOfType:type];
 }
