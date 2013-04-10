@@ -28,6 +28,8 @@ enum
 	kNodeTagBackground,
 	kNodeTagTetrisFactory,
 	kNodeTagTetris,
+	kNodeTagNextTetris,
+	kNodeTagSavedTetris,
 	kNodeTagLevelLabel,
 	kNodeTagDeletedLabel
 	
@@ -39,12 +41,15 @@ enum
 	GAMatrix			*tileMatrix;
 	GATetrisFactory		*tetrisFactory;
 	GATetris			*currentTetris;
+	GATetris			*nextTetris;
+	GATetris			*savedTetris;
 	CCTexture2D			*texture;
 	CCSprite			*background;
 	CCSpriteBatchNode	*batchNode;
 	BOOL				skipInputs;
 	NSUInteger			_level;
 	NSUInteger			_deletedRows;
+	BOOL				_tetrisSaved;
 }
 
 @property (nonatomic, readonly) CCTexture2D *texture;
@@ -67,6 +72,7 @@ enum
 -(void)rotateTetris:(EnumRotateDirections)rotate;
 
 -(void)dropTetris;
+-(void)saveTetris:(id)sender;
 
 -(void)shiftDownMatrixRows:(NSMutableArray **)rowSet;
 -(void)collapseDownTilesInRows:(NSMutableArray *)rowSet;

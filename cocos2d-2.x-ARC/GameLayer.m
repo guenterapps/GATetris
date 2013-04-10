@@ -14,6 +14,12 @@
 
 static GameLayer *sharedGamelayer = nil;
 
+@interface GameLayer (PrivateMethods)
+
+- (void)shiftNextToCurrentTetris;
+
+@end
+
 @implementation GameLayer
 
 @synthesize texture, tileMatrix, tetris = currentTetris, level = _level, deletedRows = _deletedRows;
@@ -61,10 +67,13 @@ static GameLayer *sharedGamelayer = nil;
 		skipInputs		= NO;
 		_level			= 1;
 		_deletedRows	= 0;
+		_tetrisSaved	= NO;
 		
 		texture			= [cache addImage:@"tiles.png"];
 		tileMatrix		= [GAMatrix tileMatrix];
 		currentTetris	= nil;
+		nextTetris		= nil;
+		savedTetris		= nil;
 		tetrisFactory	= [GATetrisFactory node];
 		
 		
@@ -127,10 +136,11 @@ static GameLayer *sharedGamelayer = nil;
 		[self updateLabels];
 		
 		/*******************************************************************************************/
-		
+
 		/*
 		 * Game starts!
 		 *******************************************************************************************/
+		[self shiftNextToCurrentTetris];
 		[self dropTetris];
 		[self schedule:@selector(moveDownTetris) interval: 2 / self.level];
 		/*******************************************************************************************/
@@ -253,16 +263,76 @@ static GameLayer *sharedGamelayer = nil;
 	
 }
 
+-(void)saveTetris:(id)sender
+{
+	if (!_tetrisSaved && !skipInputs)
+	{
+		CGSize screenSize = [CCDirector sharedDirector].winSize;
+		
+		if (savedTetris)
+		{
+			GATetris *tempTetris = savedTetris;
+		
+			savedTetris = currentTetris;
+		
+			currentTetris = tempTetris;
+		
+			[savedTetris removeFromParentAndCleanup:YES];
+			[currentTetris removeFromParentAndCleanup:YES];
+						
+			[self addChild:savedTetris z:1 tag:kNodeTagSavedTetris];
+			[background addChild:currentTetris z:1 tag:kNodeTagTetris];
+			
+		}
+		else
+		{
+			savedTetris = currentTetris;
+			
+			[savedTetris removeFromParentAndCleanup:YES];
+	
+			currentTetris = [tetrisFactory randomTetris];
+
+			[self addChild:savedTetris z:1 tag:kNodeTagSavedTetris];
+			[background addChild:currentTetris z:1 tag:kNodeTagTetris];
+		}
+		
+		_tetrisSaved = YES;
+		
+		[savedTetris setPosition:CGPointMake(screenSize.width - 4 * TILE_SIZE, screenSize.height / 2 - 4 * TILE_SIZE)];
+		[savedTetris setRotation:0];
+		
+		[self dropTetris];
+
+		[self schedule:@selector(moveDownTetris) interval: 2 / self.level];
+
+	}
+}
+
+- (void)shiftNextToCurrentTetris
+{
+    CGSize screenSize		= [[CCDirector sharedDirector] winSize];
+	
+	currentTetris = nextTetris;
+	
+	if (!currentTetris)
+		currentTetris = [tetrisFactory randomTetris];
+	
+	nextTetris = [tetrisFactory randomTetris];
+	
+	[self removeChildByTag:kNodeTagNextTetris cleanup:YES];
+	
+	[self addChild:nextTetris z:0 tag:kNodeTagNextTetris];
+	
+	[nextTetris setPosition:CGPointMake(screenSize.width - 4 * TILE_SIZE, screenSize.height - 4 * TILE_SIZE)];
+	
+	[background addChild:currentTetris z:0 tag:kNodeTagTetris];
+}
+
 -(void)dropTetris
 {
-
-	float yCoord = background.contentSize.height - TILE_SIZE;
-	float xCoord = 0;
-	CGPoint tetrisPosition = CGPointMake(xCoord, yCoord);
-	
-	currentTetris = [tetrisFactory randomTetris];
-	
-	[background addChild:currentTetris];
+	float yCoord			= background.contentSize.height - TILE_SIZE;
+	float xCoord			= 0;
+	CGPoint tetrisPosition	= CGPointMake(xCoord, yCoord);
 	
 	do
 	{
@@ -333,7 +403,11 @@ static GameLayer *sharedGamelayer = nil;
 		/*
 		The game loop restart.
 		*/
+		
+		[self shiftNextToCurrentTetris];
 		[self dropTetris];
+		
+		_tetrisSaved = NO;
 
 	}
 	
@@ -363,8 +437,9 @@ static GameLayer *sharedGamelayer = nil;
 			
 			GARow *toRow;
 			
-			while ([[[tileMatrix rows] objectAtIndex:j] isEmpty])
-				j--;
+
+			while ((j >= 0) && [[[tileMatrix rows] objectAtIndex:j] isEmpty])
+					j--;
 			
 			toRow = [[tileMatrix rows] objectAtIndex:++j];
 			
@@ -457,6 +532,7 @@ static GameLayer *sharedGamelayer = nil;
 	}
 	
 	[currentTetris removeAllChildrenWithCleanup:YES];
+	[currentTetris removeFromParentAndCleanup:YES];
 	[tetrisFactory tilesFromKilledTetris:tiles];
 	
 	currentTetris = nil;

@@ -16,7 +16,7 @@
 {
 	if (self = [super init])
 	{
-		int capacity = TILE_ROW * TILE_COL;
+		int capacity = TILE_ROW * TILE_COL + 8; //next tetris + saved tetris: we'll never never never run out of tiles :)
 		
 		freeTiles = [NSMutableSet setWithCapacity:capacity];
 		

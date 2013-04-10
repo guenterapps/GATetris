@@ -17,6 +17,7 @@
 	
 	if (self = [super init])
 	{
+		CGSize screenSize = [CCDirector sharedDirector].winSize;
 		
 		self.isTouchEnabled = YES;
 		
@@ -24,6 +25,21 @@
 		
 		isSwipe = NO;
 		ignoreSwipe = NO;
+		
+		/*
+		 * Tetris Save button!
+		 *******************************************************************************************/
+		GameLayer *sharedGameLayer = [GameLayer sharedGamelayer];
+		
+		CCMenuItem *saveTetris = [CCMenuItemImage itemWithNormalImage:@"Icon.png" selectedImage:@"Icon.png" target:sharedGameLayer selector:@selector(saveTetris:)];
+		
+		CCMenu *menu = [CCMenu menuWithItems:saveTetris, nil];
+		
+		[menu setPosition:CGPointMake(screenSize.width - 2 * TILE_SIZE, screenSize.height / 1.7)];
+		
+		[self addChild:menu z:1];
+		
+		/*******************************************************************************************/
 		
 	}
 	
@@ -38,8 +54,9 @@
 	UITouch *touch = [touches anyObject];
 
 	firstTouch = [[CCDirector sharedDirector] convertToGL:[touch locationInView:touch.view]];
-		
+
 }
+
 
 -(void)ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
